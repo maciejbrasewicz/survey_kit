@@ -38,10 +38,12 @@ class StepView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32.0),
-                  child: title,
-                ),
+                if (title is! SizedBox &&
+                    !(title is Text && (title.data?.isEmpty ?? true)))
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32.0),
+                    child: title,
+                  ),
                 child,
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 32.0),
