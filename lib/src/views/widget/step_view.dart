@@ -4,26 +4,24 @@ import 'package:survey_kit/src/controller/survey_controller.dart';
 import 'package:survey_kit/src/result/question_result.dart';
 import 'package:survey_kit/src/steps/step.dart' as surveystep;
 
-/// Zwraca `true`, gdy przekazany widget jest „pustym” tytułem
-/// (SizedBox.shrink(), Text('') lub Text(' '), ewentualnie Padding/Center
-/// zawierające taki pusty Text).
+/// ---------------------------------------------------------------------------
+///  Helpers
+/// ---------------------------------------------------------------------------
+
+/// Prawdziwy, wizualny „brak tytułu”.
 bool _isEmptyTitle(Widget w) {
-  // 1) pusty SizedBox
-  if (w is SizedBox) return true;
-
-  // 2) pusty lub „spacja” w Text
-  if (w is Text) return (w.data?.trim().isEmpty ?? true);
-
-  // 3) opakowania jednowidżetowe (Padding, Center, Align)
-  if (w is Padding || w is Center || w is Align) {
-    final Widget? child =
-        w is Padding ? w.child : (w as dynamic).child as Widget?;
+  if (w is SizedBox) return true;                                // 1) SizedBox.shrink()
+  if (w is Text)   return (w.data?.trim().isEmpty ?? true);      // 2) pusty / spacja
+  if (w is Padding || w is Center || w is Align) {               // 3) jednowidżetowe powłoki
+    final child = (w as dynamic).child as Widget?;
     return child == null ? true : _isEmptyTitle(child);
   }
-
-  // 4) wszystko inne traktujemy jako widoczny tytuł
-  return false;
+  return false;                                                  // 4) coś widać
 }
+
+/// ---------------------------------------------------------------------------
+///  Widok jednego kroku
+/// ---------------------------------------------------------------------------
 
 class StepView extends StatelessWidget {
   final surveystep.Step step;
@@ -48,61 +46,66 @@ class StepView extends StatelessWidget {
     final SurveyController surveyController =
         controller ?? context.read<SurveyController>();
 
-    return _content(surveyController, context);
-  }
-
-  Widget _content(SurveyController surveyController, BuildContext context) {
     return SizedBox.expand(
       child: Container(
         color: Theme.of(context).colorScheme.background,
-        child: Center(
+        // ------------- UWAGA: Align zamiast Center -------------
+        // TopCenter sprawia, że cała kolumna startuje pod AppBarem,
+        // a nie pośrodku ekranu.
+        child: Align(
+          alignment: Alignment.topCenter,
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // ---------- tytuł (wyświetlony tylko gdy nie-pusty) ----------
-                if (!_isEmptyTitle(title))
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32.0),
-                    child: title,
-                  ),
-
-                // ---------- główna zawartość kroku ----------
-                child,
-
-                // ---------- przycisk „Dalej / Next” ----------
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32.0),
-                  child: OutlinedButton(
-                    onPressed: (isValid || step.isOptional)
-                        ? () {
-                            if (FocusScope.of(context).hasFocus) {
-                              FocusScope.of(context).unfocus();
-                            }
-                            surveyController.nextStep(
-                              context,
-                              resultFunction,
-                            );
-                          }
-                        : null,
-                    child: Text(
-                      context.read<Map<String, String>?>()?['next'] ??
-                          step.buttonText ??
-                          'Next',
-                      style: TextStyle(
-                        color: (isValid || step.isOptional)
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            child: _buildColumn(context, surveyController),
           ),
         ),
       ),
+    );
+  }
+
+  /// Kolumna z tytułem, treścią i przyciskiem
+  Widget _buildColumn(BuildContext context, SurveyController surveyController) {
+    final bool hasTitle = !_isEmptyTitle(title);
+
+    return Column(
+      // Jeśli nie ma tytułu – zaczynaj od góry; jeżeli jest – możesz wycentrować.
+      mainAxisAlignment:
+          hasTitle ? MainAxisAlignment.center : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (hasTitle)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: title,
+          ),
+
+        // ---------- główna zawartość kroku ----------
+        child,
+
+        // ---------- przycisk „Dalej / Next” ----------
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32),
+          child: OutlinedButton(
+            onPressed: (isValid || step.isOptional)
+                ? () {
+                    if (FocusScope.of(context).hasFocus) {
+                      FocusScope.of(context).unfocus();
+                    }
+                    surveyController.nextStep(context, resultFunction);
+                  }
+                : null,
+            child: Text(
+              context.read<Map<String, String>?>()?['next'] ??
+                  step.buttonText ??
+                  'Next',
+              style: TextStyle(
+                color: (isValid || step.isOptional)
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
