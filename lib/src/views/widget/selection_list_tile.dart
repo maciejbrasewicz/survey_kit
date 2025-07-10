@@ -55,6 +55,9 @@ class SelectionListTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
 
 
 
