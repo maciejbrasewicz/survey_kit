@@ -55,11 +55,10 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
     required SliderThemeData sliderTheme,
     required Animation<double> enableAnimation,
     required Offset thumbCenter,
-    Offset? secondaryOffset,                 // <— NOWY parametr
+    Offset? secondaryOffset,
     bool isDiscrete = false,
     bool isEnabled = false,
     required TextDirection textDirection,
-    required double additionalActiveTrackHeight,
   }) {
     // standardowe malowanie toru
     super.paint(
@@ -69,11 +68,10 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
       sliderTheme: sliderTheme,
       enableAnimation: enableAnimation,
       thumbCenter: thumbCenter,
-      secondaryOffset: secondaryOffset,           // <— przekazujemy dalej
+      secondaryOffset: secondaryOffset,
       isDiscrete: isDiscrete,
       isEnabled: isEnabled,
       textDirection: textDirection,
-      additionalActiveTrackHeight: additionalActiveTrackHeight,
     );
 
     // ramka (ultra-cienka)
@@ -93,8 +91,6 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
     );
   }
 }
-
-
 
 /// ------------------------------
 ///  Widok kroku ze skalą
@@ -147,7 +143,7 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> {
             )
           : widget.questionStep.content,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12), // mniejsze marginesy
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
