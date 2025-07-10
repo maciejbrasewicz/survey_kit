@@ -55,10 +55,11 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
     required SliderThemeData sliderTheme,
     required Animation<double> enableAnimation,
     required Offset thumbCenter,
+    Offset? secondaryOffset,                 // <— NOWY parametr
     bool isDiscrete = false,
     bool isEnabled = false,
     required TextDirection textDirection,
-    required double additionalActiveTrackHeight, // <— nowy parametr!
+    required double additionalActiveTrackHeight,
   }) {
     // standardowe malowanie toru
     super.paint(
@@ -68,6 +69,7 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
       sliderTheme: sliderTheme,
       enableAnimation: enableAnimation,
       thumbCenter: thumbCenter,
+      secondaryOffset: secondaryOffset,           // <— przekazujemy dalej
       isDiscrete: isDiscrete,
       isEnabled: isEnabled,
       textDirection: textDirection,
@@ -91,6 +93,7 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
     );
   }
 }
+
 
 
 /// ------------------------------
