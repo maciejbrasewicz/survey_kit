@@ -39,8 +39,8 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
 
   @override
   Widget build(BuildContext context) {
-    // przygotuj funkcję wyniku raz, żeby użyć i w StepView, i w auto-next
-    QuestionResult Function() resultFn = () => SingleChoiceQuestionResult(
+    // tworzymy funkcję zwracającą wynik (używana dwa razy)
+    final resultFn = () => SingleChoiceQuestionResult(
           id: widget.questionStep.stepIdentifier,
           startDate: _startDate,
           endDate: DateTime.now(),
@@ -52,7 +52,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
       step: widget.questionStep,
       resultFunction: resultFn,
       isValid: widget.questionStep.isOptional || _selectedChoice != null,
-      showNextButton: false,                        // <— ukrywamy
+      showNextButton: false, // ukrywamy przycisk „Next”
       title: widget.questionStep.title.isNotEmpty
           ? Text(
               widget.questionStep.title,
@@ -65,6 +65,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // ---------- pytanie ----------
             Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: Text(
@@ -83,6 +84,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
             ),
             const SizedBox(height: 12),
 
+            // ---------- lista odpowiedzi ----------
             ..._answerFormat.textChoices.map(
               (tc) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -95,12 +97,13 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
 
                     setState(() => _selectedChoice = tc);
 
-                    // auto-next po 200 ms
+                    // auto-przejście po 200 ms (delikatna animacja SurveyKit)
                     Future.delayed(const Duration(milliseconds: 200), () {
                       if (!mounted) return;
-                      context
-                          .read<SurveyController>()
-                          .nextStep(context, resultFn);
+                      context.read<SurveyController>().nextStep(
+                            context,
+                            resultFn,
+                          );
                     });
                   },
                 ),
@@ -112,8 +115,6 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
     );
   }
 }
-
-
 
 
 
