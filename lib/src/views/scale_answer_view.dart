@@ -58,7 +58,9 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
     bool isDiscrete = false,
     bool isEnabled = false,
     required TextDirection textDirection,
+    required double additionalActiveTrackHeight, // <— nowy parametr!
   }) {
+    // standardowe malowanie toru
     super.paint(
       context,
       offset,
@@ -69,6 +71,7 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
       isDiscrete: isDiscrete,
       isEnabled: isEnabled,
       textDirection: textDirection,
+      additionalActiveTrackHeight: additionalActiveTrackHeight,
     );
 
     // ramka (ultra-cienka)
@@ -88,6 +91,7 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
     );
   }
 }
+
 
 /// ------------------------------
 ///  Widok kroku ze skalą
