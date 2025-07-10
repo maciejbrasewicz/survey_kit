@@ -37,7 +37,7 @@ class SelectionListTile extends StatelessWidget {
                   : Icons.radio_button_unchecked_outlined,
               color: isSelected
                   ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface.withOpacity(.60),
+                  : Colors.white.withOpacity(.60), 
               size: 28,
             ),
             const SizedBox(width: 16),
@@ -48,7 +48,7 @@ class SelectionListTile extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                   color: isSelected
                       ? theme.colorScheme.primary
-                      : theme.textTheme.bodyLarge?.color,
+                      : Colors.white.withOpacity(.87),
                 ),
               ),
             ),

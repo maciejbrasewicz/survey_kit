@@ -79,10 +79,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
             Divider(
               height: 1,
               thickness: .8,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withOpacity(.12),
+              color: Colors.white.withOpacity(.15), 
             ),
             const SizedBox(height: 12),
 
