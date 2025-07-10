@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:survey_kit/src/answer_format/single_choice_answer_format.dart';
 import 'package:survey_kit/src/answer_format/text_choice.dart';
+import 'package:survey_kit/src/controller/survey_controller.dart';
 import 'package:survey_kit/src/result/question/single_choice_question_result.dart';
 import 'package:survey_kit/src/steps/predefined_steps/question_step.dart';
 import 'package:survey_kit/src/views/widget/selection_list_tile.dart';
@@ -31,30 +33,31 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
     super.initState();
     _answerFormat =
         widget.questionStep.answerFormat as SingleChoiceAnswerFormat;
-    _selectedChoice =
-        widget.result?.result ?? _answerFormat.defaultSelection;
+    _selectedChoice = widget.result?.result ?? _answerFormat.defaultSelection;
     _startDate = DateTime.now();
   }
 
   @override
   Widget build(BuildContext context) {
+    // przygotuj funkcję wyniku raz, żeby użyć i w StepView, i w auto-next
+    QuestionResult Function() resultFn = () => SingleChoiceQuestionResult(
+          id: widget.questionStep.stepIdentifier,
+          startDate: _startDate,
+          endDate: DateTime.now(),
+          valueIdentifier: _selectedChoice?.value ?? '',
+          result: _selectedChoice,
+        );
+
     return StepView(
       step: widget.questionStep,
-      resultFunction: () => SingleChoiceQuestionResult(
-        id: widget.questionStep.stepIdentifier,
-        startDate: _startDate,
-        endDate: DateTime.now(),
-        valueIdentifier: _selectedChoice?.value ?? '',
-        result: _selectedChoice,
-      ),
+      resultFunction: resultFn,
       isValid: widget.questionStep.isOptional || _selectedChoice != null,
+      showNextButton: false,                        // <— ukrywamy
       title: widget.questionStep.title.isNotEmpty
           ? Text(
               widget.questionStep.title,
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .displayMedium,
+              style: Theme.of(context).textTheme.displayMedium,
             )
           : widget.questionStep.content,
       child: Padding(
@@ -62,7 +65,6 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ---------- Pytanie ----------
             Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: Text(
@@ -74,16 +76,13 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
                     ),
               ),
             ),
-
-            // ---------- cienka linia + odstęp ----------
             Divider(
               height: 1,
               thickness: .8,
-              color: Colors.white.withOpacity(.15), 
+              color: Colors.white.withOpacity(.15),
             ),
             const SizedBox(height: 12),
 
-            // ---------- Lista odpowiedzi ----------
             ..._answerFormat.textChoices.map(
               (tc) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -91,12 +90,17 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
                   text: tc.text,
                   isSelected: _selectedChoice == tc,
                   onTap: () {
-                    // MOCNIEJSZA haptyka
+                    // haptyka
                     HapticFeedback.heavyImpact();
 
-                    setState(() {
-                      _selectedChoice =
-                          _selectedChoice == tc ? null : tc;
+                    setState(() => _selectedChoice = tc);
+
+                    // auto-next po 200 ms
+                    Future.delayed(const Duration(milliseconds: 200), () {
+                      if (!mounted) return;
+                      context
+                          .read<SurveyController>()
+                          .nextStep(context, resultFn);
                     });
                   },
                 ),
@@ -108,6 +112,124 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
     );
   }
 }
+
+
+
+
+
+
+
+
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+// import 'package:survey_kit/src/answer_format/single_choice_answer_format.dart';
+// import 'package:survey_kit/src/answer_format/text_choice.dart';
+// import 'package:survey_kit/src/result/question/single_choice_question_result.dart';
+// import 'package:survey_kit/src/steps/predefined_steps/question_step.dart';
+// import 'package:survey_kit/src/views/widget/selection_list_tile.dart';
+// import 'package:survey_kit/src/views/widget/step_view.dart';
+
+// class SingleChoiceAnswerView extends StatefulWidget {
+//   final QuestionStep questionStep;
+//   final SingleChoiceQuestionResult? result;
+
+//   const SingleChoiceAnswerView({
+//     Key? key,
+//     required this.questionStep,
+//     required this.result,
+//   }) : super(key: key);
+
+//   @override
+//   _SingleChoiceAnswerViewState createState() => _SingleChoiceAnswerViewState();
+// }
+
+// class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
+//   late final DateTime _startDate;
+//   late final SingleChoiceAnswerFormat _answerFormat;
+//   TextChoice? _selectedChoice;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _answerFormat =
+//         widget.questionStep.answerFormat as SingleChoiceAnswerFormat;
+//     _selectedChoice =
+//         widget.result?.result ?? _answerFormat.defaultSelection;
+//     _startDate = DateTime.now();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return StepView(
+//       step: widget.questionStep,
+//       resultFunction: () => SingleChoiceQuestionResult(
+//         id: widget.questionStep.stepIdentifier,
+//         startDate: _startDate,
+//         endDate: DateTime.now(),
+//         valueIdentifier: _selectedChoice?.value ?? '',
+//         result: _selectedChoice,
+//       ),
+//       isValid: widget.questionStep.isOptional || _selectedChoice != null,
+//       title: widget.questionStep.title.isNotEmpty
+//           ? Text(
+//               widget.questionStep.title,
+//               textAlign: TextAlign.center,
+//               style: Theme.of(context)
+//                   .textTheme
+//                   .displayMedium,
+//             )
+//           : widget.questionStep.content,
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 18),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.stretch,
+//           children: [
+//             // ---------- Pytanie ----------
+//             Padding(
+//               padding: const EdgeInsets.only(bottom: 24),
+//               child: Text(
+//                 widget.questionStep.text,
+//                 textAlign: TextAlign.center,
+//                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
+//                       fontSize: 20,
+//                       fontWeight: FontWeight.w600,
+//                     ),
+//               ),
+//             ),
+
+//             // ---------- cienka linia + odstęp ----------
+//             Divider(
+//               height: 1,
+//               thickness: .8,
+//               color: Colors.white.withOpacity(.15), 
+//             ),
+//             const SizedBox(height: 12),
+
+//             // ---------- Lista odpowiedzi ----------
+//             ..._answerFormat.textChoices.map(
+//               (tc) => Padding(
+//                 padding: const EdgeInsets.only(bottom: 8),
+//                 child: SelectionListTile(
+//                   text: tc.text,
+//                   isSelected: _selectedChoice == tc,
+//                   onTap: () {
+//                     // MOCNIEJSZA haptyka
+//                     HapticFeedback.heavyImpact();
+
+//                     setState(() {
+//                       _selectedChoice =
+//                           _selectedChoice == tc ? null : tc;
+//                     });
+//                   },
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 
 
