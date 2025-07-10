@@ -51,8 +51,10 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
       title: widget.questionStep.title.isNotEmpty
           ? Text(
               widget.questionStep.title,
-              style: Theme.of(context).textTheme.displayMedium,
               textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .displayMedium,
             )
           : widget.questionStep.content,
       child: Padding(
@@ -60,36 +62,47 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ---------- Pytanie (większy, nowocześniejszy font) ----------
+            // ---------- Pytanie ----------
             Padding(
-              padding: const EdgeInsets.only(bottom: 32),
+              padding: const EdgeInsets.only(bottom: 24),
               child: Text(
                 widget.questionStep.text,
                 textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge      // bazowy styl
-                    ?.copyWith(
-                      fontSize: 20,  // nieco większy
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
               ),
             ),
 
+            // ---------- cienka linia + odstęp ----------
+            Divider(
+              height: 1,
+              thickness: .8,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withOpacity(.12),
+            ),
+            const SizedBox(height: 12),
+
             // ---------- Lista odpowiedzi ----------
             ..._answerFormat.textChoices.map(
-              (tc) => SelectionListTile(
-                text: tc.text,
-                isSelected: _selectedChoice == tc,
-                onTap: () {
-                  // haptyka → delikatna selekcja
-                  HapticFeedback.selectionClick();
+              (tc) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: SelectionListTile(
+                  text: tc.text,
+                  isSelected: _selectedChoice == tc,
+                  onTap: () {
+                    // MOCNIEJSZA haptyka
+                    HapticFeedback.heavyImpact();
 
-                  setState(() {
-                    _selectedChoice =
-                        _selectedChoice == tc ? null : tc;
-                  });
-                },
+                    setState(() {
+                      _selectedChoice =
+                          _selectedChoice == tc ? null : tc;
+                    });
+                  },
+                ),
               ),
             ),
           ],
@@ -98,6 +111,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> {
     );
   }
 }
+
 
 
 

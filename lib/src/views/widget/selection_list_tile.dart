@@ -22,33 +22,32 @@ class SelectionListTile extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected
-              ? theme.primaryColor.withOpacity(0.08)   // subtelne podświetlenie
+              ? theme.colorScheme.primary.withOpacity(0.08)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            // ---------- Ikona wyboru ----------
             Icon(
               isSelected
                   ? Icons.check_circle_rounded
                   : Icons.radio_button_unchecked_outlined,
-              color: isSelected ? theme.primaryColor : Colors.grey,
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface.withOpacity(.60),
               size: 28,
             ),
             const SizedBox(width: 16),
-
-            // ---------- Treść odpowiedzi ----------
             Expanded(
               child: Text(
                 text,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w500,
                   color: isSelected
-                      ? theme.primaryColor
+                      ? theme.colorScheme.primary
                       : theme.textTheme.bodyLarge?.color,
                 ),
               ),
@@ -56,10 +55,6 @@ class SelectionListTile extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
 
 
 
