@@ -55,12 +55,13 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
     required SliderThemeData sliderTheme,
     required Animation<double> enableAnimation,
     required Offset thumbCenter,
-    Offset? secondaryOffset,
+    Offset? secondaryOffset,                  // tak samo jak w bazowej
     bool isDiscrete = false,
     bool isEnabled = false,
     required TextDirection textDirection,
+    double additionalActiveTrackHeight = 0,   // opcjonalny, z domyślną wartością
   }) {
-    // standardowe malowanie toru
+    // standardowy tor
     super.paint(
       context,
       offset,
@@ -72,6 +73,7 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
       isDiscrete: isDiscrete,
       isEnabled: isEnabled,
       textDirection: textDirection,
+      additionalActiveTrackHeight: additionalActiveTrackHeight,
     );
 
     // ramka (ultra-cienka)
@@ -91,6 +93,7 @@ class _BorderTrackShape extends RoundedRectSliderTrackShape {
     );
   }
 }
+
 
 /// ------------------------------
 ///  Widok kroku ze skalą
