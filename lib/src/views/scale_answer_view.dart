@@ -5,6 +5,45 @@ import 'package:survey_kit/src/result/question/scale_question_result.dart';
 import 'package:survey_kit/src/steps/predefined_steps/question_step.dart';
 import 'package:survey_kit/src/views/widget/step_view.dart';
 
+/// ---------------------------------------------------------------------------
+///  Thumb: pusta biała obwódka
+/// ---------------------------------------------------------------------------
+class _HollowThumbShape extends SliderComponentShape {
+  const _HollowThumbShape({this.radius = 12});
+  final double radius;
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) =>
+      Size.fromRadius(radius);
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter? labelPainter,
+    required RenderBox? parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final Canvas canvas = context.canvas;
+    final Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..color = Colors.white.withOpacity(.90); // jasna ramka
+
+    canvas.drawCircle(center, radius - 1.5, paint);
+  }
+}
+
+/// ---------------------------------------------------------------------------
+///  Widok kroku z suwakiem
+/// ---------------------------------------------------------------------------
 class ScaleAnswerView extends StatefulWidget {
   final QuestionStep questionStep;
   final ScaleQuestionResult? result;
@@ -53,11 +92,12 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> {
             )
           : widget.questionStep.content,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
+        //   ↓↓ mniejsze marginesy dla „dłuższego” suwaka
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ---------- Pytanie (większy, nowocześniejszy font) ----------
+            // ---------- pytanie ----------
             Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: Text(
@@ -78,20 +118,7 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> {
             ),
             const SizedBox(height: 20),
 
-            // ---------- Aktualna wartość (opcjonalna) ----------
-            if (_format.showValue)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  _sliderValue.toInt().toString(),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-
-            // ---------- Opisy krańcowe ----------
+            // ---------- opisy krańcowe ----------
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -100,7 +127,7 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> {
                     _format.minimumValueDescription,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(.87),
+                      color: Colors.white.withOpacity(.80),
                     ),
                     maxLines: 3,
                   ),
@@ -112,7 +139,7 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> {
                     textAlign: TextAlign.end,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(.87),
+                      color: Colors.white.withOpacity(.80),
                     ),
                     maxLines: 3,
                   ),
@@ -121,15 +148,16 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> {
             ),
             const SizedBox(height: 12),
 
-            // ---------- Slider z nowoczesnym stylem ----------
+            // ---------- suwak ----------
             SliderTheme(
               data: SliderTheme.of(context).copyWith(
-                trackHeight: 6,
+                trackHeight: 8,                               // grubszy
                 inactiveTrackColor: Colors.white.withOpacity(.24),
-                activeTrackColor: theme.colorScheme.primary,
-                thumbColor: theme.colorScheme.primary,
-                overlayColor: theme.colorScheme.primary.withOpacity(.18),
-                tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 2),
+                activeTrackColor: Colors.white.withOpacity(.24), // brak kolorowego wypełnienia
+                thumbShape: const _HollowThumbShape(radius: 12),
+                overlayColor: theme.colorScheme.primary.withOpacity(.20),
+                valueIndicatorColor: theme.colorScheme.primary,
+                tickMarkShape: SliderTickMarkShape.noTickMark, // gładki tor
                 valueIndicatorTextStyle: theme.textTheme.labelSmall?.copyWith(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
@@ -143,9 +171,7 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> {
                     _format.step,
                 label: _sliderValue.toInt().toString(),
                 onChangeStart: (_) => HapticFeedback.selectionClick(),
-                onChanged: (double value) {
-                  setState(() => _sliderValue = value);
-                },
+                onChanged: (double v) => setState(() => _sliderValue = v),
                 onChangeEnd: (_) => HapticFeedback.heavyImpact(),
               ),
             ),
